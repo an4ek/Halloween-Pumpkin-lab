@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>🎃 Halloween Pumpkin Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(to bottom, #0c002a, #1a0033);
+            color: #ffcc00;
+            font-family: 'Montserrat', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        h1 {
+            font-family: 'Creepster', cursive;
+            font-size: 3.2rem;
+            margin: 10px 0;
+            text-shadow: 0 0 15px #ff4500;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin: 15px 0 80px;
+            text-align: center;
+            max-width: 600px;
+            line-height: 1.5;
+            color: #f0d9a0;
+        }
+
+        .pumpkin-container {
+            position: relative;
+            margin: 0 0 60px;
+        }
+
+        .pumpkin {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            background: #ff7518;
+            border-radius: 50%;
+            box-shadow: 0 0 40px #ff4500;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .pumpkin:hover {
+            transform: scale(1.05);
+        }
+
+        .eye {
+            position: absolute;
+            width: 55px;
+            height: 75px;
+            background: black;
+            top: 75px;
+            border-radius: 50%;
+        }
+
+        .eye.left { left: 55px; }
+        .eye.right { right: 55px; }
+
+        .mouth {
+            position: absolute;
+            width: 130px;
+            height: 55px;
+            background: black;
+            bottom: 65px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 0 0 65px 65px;
+        }
+
+        .flame {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 28px;
+            height: 55px;
+            background: #ffcc00;
+            border-radius: 50% 50% 20% 20%;
+            box-shadow: 0 0 20px #ff6600;
+            animation: flicker 1.5s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; transform: translateX(-50%) scale(1); }
+            50% { opacity: 0.8; transform: translateX(-48%) scale(1.1); }
+        }
+
+        .eyelid {
+            position: absolute;
+            width: 55px;
+            height: 38px;
+            background: #ff7518;
+            top: 75px;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .eyelid.left { left: 55px; }
+        .eyelid.right { right: 55px; }
+
+        .pumpkin.blink .eyelid {
+            opacity: 1;
+        }
+
+        .speech {
+            position: absolute;
+            top: -84px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            color: #333;
+            padding: 10px 16px;
+            border-radius: 14px;
+            font-family: 'Creepster', cursive;
+            font-size: 20px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.4s;
+            z-index: 10;
+        }
+
+        .speech.show {
+            opacity: 1;
+        }
+
+        .btn {
+            margin-top: 20px;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            background: #ff4500;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: #ff6a00;
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .falling {
+            position: absolute;
+            top: -20px;
+            font-size: 24px;
+            opacity: 0.7;
+            z-index: -1;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(105vh) rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h1>🎃 Halloween Pumpkin Lab</h1>
+<p class="subtitle">Кликни на тыкву или нажми кнопку, чтобы услышать жуткое пророчество!</p>
+
+<div class="pumpkin-container">
+    <div class="pumpkin" id="pumpkin">
+        <div class="flame"></div>
+        <div class="eye left"></div>
+        <div class="eye right"></div>
+        <div class="eyelid left"></div>
+        <div class="eyelid right"></div>
+        <div class="mouth"></div>
+        <div class="speech" id="speech"></div>
+    </div>
+</div>
+
+<button class="btn" id="scareBtn">Пугать! 👻</button>
+
+<p class="footer">Бу 2025</p>
+
+<script>
+    const pumpkin = document.getElementById('pumpkin');
+    const speechBubble = document.getElementById('speech');
+    const scareBtn = document.getElementById('scareBtn');
+
+    const phrases = [
+        "Бу-у-у!",
+        "Ты не пройдёшь!",
+        "Хэллоуин... пришёл за тобой!",
+        "Я вижу тебя...",
+        "Съешь конфетку... если осмелишься!",
+        "Ты слишком сладкий для меня!",
+        "Тыквенный суд настал!",
+        "Мои глаза следят за тобой!",
+        "Ха-ха-ха! Страшно?",
+        "Приходи завтра... если выживешь!",
+        "Ты последний, кто нажал эту кнопку...",
+        "Твоё время истекает... ⏳"
+    ];
+
+    function blink() {
+        pumpkin.classList.add('blink');
+        setTimeout(() => pumpkin.classList.remove('blink'), 200);
+    }
+
+    function scare() {
+        const phrase = phrases[Math.floor(Math.random() * phrases.length)];
+        speechBubble.textContent = phrase;
+        speechBubble.classList.add('show');
+
+        if ('speechSynthesis' in window) {
+            speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(phrase);
+            utterance.lang = 'ru-RU';
+            utterance.rate = 0.85;
+            utterance.pitch = 0.6;
+            speechSynthesis.speak(utterance);
+        }
+
+        setTimeout(() => speechBubble.classList.remove('show'), 2800);
+    }
+
+    setInterval(() => {
+        if (Math.random() > 0.7) blink();
+    }, 4000 + Math.random() * 4000);
+
+    pumpkin.addEventListener('click', scare);
+    scareBtn.addEventListener('click', scare);
+    pumpkin.addEventListener('mouseenter', blink);
+
+    function createFalling() {
+        const symbols = ['🦇', '🕸️', '🍂', '💀', '🕷️', '🌕'];
+        const el = document.createElement('div');
+        el.className = 'falling';
+        el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        el.style.left = Math.random() * 100 + 'vw';
+        el.style.fontSize = (16 + Math.random() * 20) + 'px';
+        el.style.opacity = 0.4 + Math.random() * 0.5;
+        el.style.animationDuration = (3 + Math.random() * 7) + 's';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 10000);
+    }
+
+    setInterval(createFalling, 800);
+</script>
+
+</body>
+</html>
